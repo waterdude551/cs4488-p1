@@ -20,14 +20,15 @@ public class TexturedMesh : MonoBehaviour {
 	// create a quad that is textured
 	void Start () {
 
-		// call the routine that makes a cube from scratch
+		// call the routine that makes a quad from scratch
 		Mesh my_mesh = CreateMyMesh();
 
 		// create a new GameObject and give it a MeshFilter and a MeshRenderer
-		GameObject s = new GameObject("Textured Mesh");
+		GameObject s = new GameObject("Floor Tile");
 		s.AddComponent<MeshFilter>();
 		s.AddComponent<MeshRenderer>();
 		s.transform.position = transform.position;
+		s.transform.localScale = new Vector3(3f,3f,3f);
 
 		// associate my_mesh with this object
 		s.GetComponent<MeshFilter>().mesh = my_mesh;
