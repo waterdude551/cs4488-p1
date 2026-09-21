@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class TexturedMesh : MonoBehaviour {
@@ -9,6 +10,12 @@ public class TexturedMesh : MonoBehaviour {
 	public int texture_width = 64;
 	public int texture_height = 64;
 	public float scale = 10;
+	[Range(0f, 1f)]
+	public float r;
+	[Range(0f, 1f)]
+	public float g;
+	[Range(0f, 1f)]
+	public float b;
 
 	// create a quad that is textured
 	void Start () {
@@ -20,13 +27,14 @@ public class TexturedMesh : MonoBehaviour {
 		GameObject s = new GameObject("Textured Mesh");
 		s.AddComponent<MeshFilter>();
 		s.AddComponent<MeshRenderer>();
+		s.transform.position = transform.position;
 
 		// associate my_mesh with this object
 		s.GetComponent<MeshFilter>().mesh = my_mesh;
 
 		// change the color of the object
 		Renderer rend = s.GetComponent<Renderer>();
-		rend.material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		rend.material.color = new Color (r,g,b, 1.0f);
 
 		// create a texture
 		Texture2D texture = make_a_texture();
