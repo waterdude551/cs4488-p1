@@ -1,4 +1,4 @@
-﻿// This sample code demonstrates how to create a texture using Perlin noise.
+// This sample code demonstrates how to create a texture using Perlin noise.
 
 using System.Collections;
 using System.Collections.Generic;
@@ -43,6 +43,10 @@ public class TexturedMesh : MonoBehaviour {
 		// attach the texture to the mesh
 		Renderer renderer = s.GetComponent<Renderer>();
 		renderer.material.mainTexture = texture;
+		for (int i = 0; i < 10; i++)
+		{
+			
+		}
 	}
 
 	// create a texture with Perlin noise

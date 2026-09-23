@@ -3,7 +3,7 @@ using UnityEngine;
 public static class Rnd
 {
     /// <summary>
-    /// Return a random number influenced by Schlick's bias. Bias values closer to 0 provide more commonly high random values, while increasing beyond 1 make lower values more likely. x = r/((1/b-2)(1-r)+1)
+    /// Return a random number influenced by Schlick's bias. Bias values closer to 0 provide lower random values, while values closer to 1 make higher values more likely. x = r/((1/b-2)(1-r)+1)
     /// </summary>
     /// <param name="r">A random number.</param>
     /// <param name="b">The bias argument. Should be between 0 and 1.</param>
@@ -14,7 +14,7 @@ public static class Rnd
     }
 
     /// <summary>
-    /// Returns a random number influenced by Schlick's gain. Gain values closer to 0 produce values biased towards 0 and 1, while gains closer to 1 produce values biased towards 0.5.
+    /// Returns a random number influenced by Schlick's gain. Gain values closer to 0 produce values biased to 0.5, while gains closer to 1 produce values biased towards extremes.
     /// </summary>
     /// <param name="r">A random number.</param>
     /// <param name="g">The gain argument. Should be between 0 and 1.</param>
@@ -23,11 +23,11 @@ public static class Rnd
     {
         if (r < 0.5f)
         {
-            return bias(r, 1-g)/2f;
+            return bias(2*r, g)/2f;
         } 
         else
         {
-            return 1 - bias(1-r, 1-g)/2f;
+            return 1 - bias(2-2*r, g)/2f;
         }
     }
 }
