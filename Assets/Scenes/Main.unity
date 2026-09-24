@@ -350,13 +350,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57522ff5dcc64354aa484512509c4d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
-  dungeonWidth: 30
-  dungeonHeight: 30
+  dungeonWidth: 16
+  dungeonHeight: 16
   seed: 1
-  maxRoomSize: 20
-  maxPlacementAttempts: 100
-  roomSizeGain: 0.25
-  roomPlacementGain: 0.75
+  maxRoomSize: 12
+  maxPlacementAttempts: 30
+  roomSizeGain: 0.9
+  roomPlacementGain: 0.05
 --- !u!4 &1415342640
 Transform:
   m_ObjectHideFlags: 0

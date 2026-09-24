@@ -39,67 +39,76 @@ public class DungeonGenerator : MonoBehaviour
     void RandomizeSize()
     {
         float rw = Random.value;
-        nextRoomWidth = (int) (maxRoomSize * Rnd.gain(rw, roomSizeGain));
         float rh = Random.value;
-        nextRoomHeight = (int) (maxRoomSize * Rnd.gain(rh, roomSizeGain));
+        // Random integer from 1 to maxRoomSize
+        nextRoomWidth = (int) ((maxRoomSize-1) * Rnd.gain(rw, roomSizeGain)) + 1;
+        nextRoomHeight = (int) ((maxRoomSize-1) * Rnd.gain(rh, roomSizeGain)) + 1;
         Debug.Log("Sized room with width " + nextRoomWidth + " and height " + nextRoomHeight);
     }
 
     void FindRoomPlacement()
     {
-        bool placed = false;
-        bool placementFailed = false;
         int placementAttempts = 0;
-
+        bool placementFailed = false;
+        
         // attempt up to n placements
-        while (!placed && placementAttempts < maxPlacementAttempts)
+        while (placementAttempts < maxPlacementAttempts)
         {
             placementAttempts++;
+            placementFailed = false;
             // try random
-            int currX = (int) Rnd.gain(Random.value, roomPlacementGain) * (dungeonWidth - nextRoomWidth);
-            int currY = (int) Rnd.gain(Random.value, roomPlacementGain) * (dungeonHeight - nextRoomHeight);
-            Debug.Log("Attempting room placement at " + currX + ", " + currY);
+            int currX = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonWidth - nextRoomWidth));
+            int currY = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonHeight - nextRoomHeight));
+            // Debug.Log("Attempting room placement at " + currX + ", " + currY);
+            
             // check room collision
             for (int y = currY; y < currY + nextRoomHeight; y++) 
             {
                 for (int x = currX; x < currX + nextRoomWidth; x++)
                 {
-                    if (dungeonGrid[y,x] != 0)
+                    // Debug.Log("With size " + nextRoomWidth + "," + nextRoomHeight + ", checking at " + x + "," + y);
+                    if (dungeonGrid[y,x] != 0 
+                    && dungeonGrid[Mathf.Max(0,y-1),x] != 0 
+                    && dungeonGrid[y,Mathf.Max(0,x-1)] != 0)
                     {
                         // failed to place room; eject from for-loops
-                        y = int.MaxValue;
-                        x = int.MaxValue;
+                        y = currY + nextRoomHeight;
+                        x = currX + nextRoomWidth;
                         placementFailed = true;
+                        
                     }
                 }
             }
-            // found valid placement
+
             if (!placementFailed)
             {
-                for (int y = currY; y < currY + nextRoomHeight; y++) 
+                Debug.Log("Found valid placement at " + currX + ", " + currY + " after " + placementAttempts + " attempts.");
+                for (int y = currY; y < currY + nextRoomHeight - 1; y++) 
                 {
-                    for (int x = currX; x < currX + nextRoomWidth; x++)
+                    for (int x = currX; x < currX + nextRoomWidth - 1; x++)
                     {
                         dungeonGrid[y,x] = roomNumber;
-                        placed = true;
-                        roomNumber++;
+                        // end while
+                        placementAttempts = maxPlacementAttempts;
                     }
                 }
+                roomNumber++;
             }
-        }
+        } 
 
-        // after nfail failed attempts, end 
-        if (!placed)
+        
+        if (placementFailed)
         {
-            // Debug.Log("Failed to find room placement within " + maxPlacementAttempts + " attempts. Reducing max dimensions.");
-            // maxRoomSize -= 10;
-            Debug.Log("Failed to find room placement. Marking generation as complete.");
-            generationActive = false;
-            // if (maxRoomSize <= 0)
-            // {
-                
-            // }
-        }        
+            maxRoomSize--;
+            if (maxRoomSize <= 1)
+            {
+                Debug.Log("Failed to find room placement. Marking generation as complete.");
+                generationActive = false;
+            } else {
+                Debug.Log("Failed to find room placement within " + maxPlacementAttempts + " attempts. Reducing max dimensions to " + maxRoomSize);
+            }
+            
+        }
     }
 
     void Update()
