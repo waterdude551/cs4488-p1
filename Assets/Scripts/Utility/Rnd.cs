@@ -23,11 +23,11 @@ public static class Rnd
     {
         if (r < 0.5f)
         {
-            return bias(2*r, g)/2f;
+            return bias(2*r, 1-g)/2f;
         } 
         else
         {
-            return 1 - bias(2-2*r, g)/2f;
+            return 1 - bias(2-2*r, 1-g)/2f;
         }
     }
 }

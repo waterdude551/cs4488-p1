@@ -350,13 +350,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57522ff5dcc64354aa484512509c4d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
-  dungeonWidth: 16
-  dungeonHeight: 16
+  dungeonWidth: 24
+  dungeonHeight: 24
   seed: 1
-  maxRoomSize: 12
-  maxPlacementAttempts: 30
-  roomSizeGain: 0.9
-  roomPlacementGain: 0.05
+  maxRoomSize: 10
+  minRoomSize: 5
+  maxPlacementAttempts: 10000
+  roomSizeGain: 0.125
+  startingPlacementGain: 0.975
 --- !u!4 &1415342640
 Transform:
   m_ObjectHideFlags: 0
@@ -366,7 +367,7 @@ Transform:
   m_GameObject: {fileID: 1415342638}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.42857, y: 0, z: -11.42857}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
