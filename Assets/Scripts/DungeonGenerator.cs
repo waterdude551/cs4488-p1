@@ -1,16 +1,11 @@
 using System.Collections.Generic;
-using System.IO.Compression;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class DungeonGenerator : MonoBehaviour
 {
     // Define the grid size.
-    [SerializeField]
-    int dungeonWidth;
-    [SerializeField]
-    int dungeonHeight;
+    public int dungeonWidth;
+    public int dungeonHeight;
 
     [SerializeField]
     int seed;
@@ -278,10 +273,16 @@ public class DungeonGenerator : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Deletes the first child of the dungeon generator: the first remaining dungeon.
+    /// </summary>
     void DeleteDungeon()
     {
         GameObject.Destroy(transform.GetChild(0).gameObject);
     }
+    /// <summary>
+    /// Prints tilemap to console.
+    /// </summary>
     void LogTiles()
     {   
         string grid = "";
@@ -297,6 +298,9 @@ public class DungeonGenerator : MonoBehaviour
         Debug.Log(grid);
     }
 
+    /// <summary>
+    /// Randomly adds doors to connect rooms to hallways.
+    /// </summary>
     void FormDoors()
     {
         // for each room, break down a random non-edge NSEW wall
@@ -327,6 +331,9 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Instantiates and places tiles, forming the dungeon.
+    /// </summary>
     void SpawnDungeon()
     {
         for (int y = 0; y < dungeonHeight; y++)

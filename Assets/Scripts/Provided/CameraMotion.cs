@@ -12,7 +12,7 @@ public class CameraMotion : MonoBehaviour {
 	void Start () {
 		
 		// start with one plane
-		create_new_plane();
+		// create_new_plane();
 	}
 	
 	// move the camera, and perhaps create a new plane
@@ -42,9 +42,9 @@ public class CameraMotion : MonoBehaviour {
 		//Debug.LogFormat ("x z: {0} {1}", cam_pos.x, cam_pos.z);
 
 		// if the camera has moved far enough, create another plane
-		if (cam_pos.z > (max_plane + 0.5) * plane_size * 2) {
-			create_new_plane ();
-		}
+		// if (cam_pos.z > (max_plane + 0.5) * plane_size * 2) {
+		// 	create_new_plane ();
+		// }
 
 	}
 

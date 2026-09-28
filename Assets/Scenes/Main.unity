@@ -403,7 +403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1813096116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,12 +416,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e19d3278feab3540a57fe9e6a22ffeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TexturedMesh
-  texture_width: 512
-  texture_height: 512
-  scale: 256
+  dungeonGen: {fileID: 1415342639}
+  texture_width: 4096
+  texture_height: 4096
+  scale: 2000
   r: 1
-  g: 0.88235295
-  b: 0.654902
+  g: 0.87
+  b: 0.6
 --- !u!4 &1813096117
 Transform:
   m_ObjectHideFlags: 0

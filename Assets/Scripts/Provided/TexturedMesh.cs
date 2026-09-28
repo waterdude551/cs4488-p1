@@ -4,9 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TexturedMesh : MonoBehaviour {
-
+	[SerializeField]
+	DungeonGenerator dungeonGen;
 	public int texture_width = 64;
 	public int texture_height = 64;
 	public float scale = 10;
@@ -19,34 +21,8 @@ public class TexturedMesh : MonoBehaviour {
 
 	// create a quad that is textured
 	void Start () {
-
-		// call the routine that makes a quad from scratch
-		Mesh my_mesh = CreateMyMesh();
-
-		// create a new GameObject and give it a MeshFilter and a MeshRenderer
-		GameObject s = new GameObject("Floor Tile");
-		s.AddComponent<MeshFilter>();
-		s.AddComponent<MeshRenderer>();
-		s.transform.position = transform.position;
-		s.transform.localScale = new Vector3(3f,3f,3f);
-
-		// associate my_mesh with this object
-		s.GetComponent<MeshFilter>().mesh = my_mesh;
-
-		// change the color of the object
-		Renderer rend = s.GetComponent<Renderer>();
-		rend.material.color = new Color (r,g,b, 1.0f);
-
-		// create a texture
-		Texture2D texture = make_a_texture();
-
-		// attach the texture to the mesh
-		Renderer renderer = s.GetComponent<Renderer>();
-		renderer.material.mainTexture = texture;
-		for (int i = 0; i < 10; i++)
-		{
-			
-		}
+		
+		
 	}
 
 	// create a texture with Perlin noise
@@ -59,8 +35,8 @@ public class TexturedMesh : MonoBehaviour {
 		// create the Perlin noise pattern in "colors"
 		for (int i = 0; i < texture_width; i++)
 			for (int j = 0; j < texture_height; j++) {
-				float x = scale * i / (float) texture_width;
-				float y = scale * j / (float) texture_height;
+				float x = scale * i / (float) texture_width * dungeonGen.dungeonWidth;
+				float y = scale * j / (float) texture_height * dungeonGen.dungeonHeight;
 				float t = Mathf.PerlinNoise (x, y);                          // Perlin noise!
 				colors [j * texture_width + i] = new Color (t, t, t, 1.0f);  // gray scale values (r = g = b)
 			}
@@ -121,9 +97,45 @@ public class TexturedMesh : MonoBehaviour {
 		return (mesh);
 	}
 
+	void MakeFloor()
+	{
+		// call the routine that makes a quad from scratch
+		Mesh my_mesh = CreateMyMesh();
+
+		// create a new GameObject and give it a MeshFilter and a MeshRenderer
+		GameObject s = new GameObject("Floor Tile");
+		s.transform.SetParent(transform);
+		s.AddComponent<MeshFilter>();
+		s.AddComponent<MeshRenderer>();
+		s.transform.position = new Vector3(2.5f*dungeonGen.dungeonWidth-2.5f, 0.1f, -2.5f*dungeonGen.dungeonHeight+2.5f);
+		s.transform.localScale = new Vector3(2.5f*dungeonGen.dungeonWidth, 1, 2.5f*dungeonGen.dungeonHeight);
+
+		// associate my_mesh with this object
+		s.GetComponent<MeshFilter>().mesh = my_mesh;
+
+		// change the color of the object
+		Renderer rend = s.GetComponent<Renderer>();
+		rend.material.color = new Color (r,g,b, 1.0f);
+		rend.material.SetFloat("_Glossiness", 0f);
+
+		// create a texture
+		Texture2D texture = make_a_texture();
+
+		// attach the texture to the mesh
+		Renderer renderer = s.GetComponent<Renderer>();
+		renderer.material.mainTexture = texture;
+	}
+
 	// update is called once per frame
 	void Update () {
-
+		if (Input.GetKeyDown(KeyCode.Alpha2))
+		{
+			MakeFloor();
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha3))
+		{
+			GameObject.Destroy(transform.GetChild(0).gameObject);
+		}
 	}
 		
 }
