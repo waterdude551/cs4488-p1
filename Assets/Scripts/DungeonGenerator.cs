@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.IO.Compression;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class DungeonGenerator : MonoBehaviour
 {
@@ -27,7 +30,7 @@ public class DungeonGenerator : MonoBehaviour
     float roomPlacementGain; // Closer to 1 = more extreme values.
     bool generationActive;
     
-    private int[,] dungeonGrid;
+    private int[,] grid;
     private int nextRoomWidth;
     private int nextRoomHeight;
     private int roomNumber;
@@ -37,16 +40,22 @@ public class DungeonGenerator : MonoBehaviour
         InitDungeon();
     }
 
+    /// <summary>
+    /// Initializes fields for creating a new dungeon.
+    /// </summary>
     void InitDungeon()
     {
         Random.InitState(seed);
         generationActive = true;
         roomNumber = 0;
-        dungeonGrid = new int[dungeonHeight,dungeonWidth];
+        grid = new int[dungeonHeight,dungeonWidth];
         currMaxRoomSize = maxRoomSize;
         roomPlacementGain = startingPlacementGain;
     }
 
+    /// <summary>
+    /// Randomizes a width and height for the next room.
+    /// </summary>
     void RandomizeSize()
     {
         float rw = Random.value;
@@ -57,6 +66,9 @@ public class DungeonGenerator : MonoBehaviour
         // Debug.Log("Sized room with width " + nextRoomWidth + " and height " + nextRoomHeight);
     }
 
+    /// <summary>
+    /// Attempts to find a placement for a room, shrinking and centering until no more placements are valid.
+    /// </summary>
     void FindRoomPlacement()
     {
         int placementAttempts = 0;
@@ -69,8 +81,8 @@ public class DungeonGenerator : MonoBehaviour
             placementFailed = false;
             // try random
             RandomizeSize();
-            int currX = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonWidth - nextRoomWidth));
-            int currY = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonHeight - nextRoomHeight));
+            int currX = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonWidth - nextRoomWidth + 1));
+            int currY = (int) (Rnd.gain(Random.value, roomPlacementGain) * (dungeonHeight - nextRoomHeight + 1));
             // Debug.Log("Attempting room placement at " + currX + ", " + currY);
             
             // check room collision
@@ -79,12 +91,12 @@ public class DungeonGenerator : MonoBehaviour
                 for (int x = currX; x < currX + nextRoomWidth; x++)
                 {
                     // Debug.Log("With size " + nextRoomWidth + "," + nextRoomHeight + ", checking at " + x + "," + y);
-                    // blocked if any adjacents aren't clear (needlessly redundant)
-                    if (dungeonGrid[y,x] != 0 
-                    || dungeonGrid[Mathf.Max(0,y-1),x] != 0 
-                    || dungeonGrid[y,Mathf.Max(0,x-1)] != 0
-                    || dungeonGrid[Mathf.Min(dungeonHeight-1,y+1),x] != 0 
-                    || dungeonGrid[y,Mathf.Min(dungeonWidth-1,x+1)] != 0)
+                    // blocked if any adjacents aren't clear (needlessly redundant but not particularly slow)
+                    if (grid[y,x] != 0 
+                    || grid[Mathf.Max(0,y-1),x] != 0 
+                    || grid[y,Mathf.Max(0,x-1)] != 0
+                    || grid[Mathf.Min(dungeonHeight-1,y+1),x] != 0 
+                    || grid[y,Mathf.Min(dungeonWidth-1,x+1)] != 0)
                     {
                         // failed to place room; eject from for-loops
                         y = currY + nextRoomHeight;
@@ -103,7 +115,7 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     for (int x = currX; x < currX + nextRoomWidth; x++)
                     {
-                        dungeonGrid[y,x] = roomNumber;
+                        grid[y,x] = roomNumber;
                     }
                 }
                 // end while
@@ -127,6 +139,9 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Fully populates a dungeon with rooms.
+    /// </summary>
     void GenerateRooms()
     {
         InitDungeon();
@@ -135,7 +150,7 @@ public class DungeonGenerator : MonoBehaviour
             // RandomizeSize();
             FindRoomPlacement();
         }
-        Debug.Log("Generated " + roomNumber + "rooms");
+        Debug.Log("Generated " + roomNumber + " rooms");
     }
 
     void Update()
@@ -147,32 +162,188 @@ public class DungeonGenerator : MonoBehaviour
         ReadDebugInputs();
     }
 
+    /// <summary>
+    /// Input for debug logs.
+    /// </summary>
     void ReadDebugInputs()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            GenerateRooms();
             LogGrid();
         }
-        if (Input.GetKeyDown(KeyCode.G)) {
-            GenerateRooms();
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            FormWalls();
+            FormDoors();
+            LogTiles();
+            SpawnDungeon();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            DeleteDungeon();
         }
         if (Input.GetKeyDown(KeyCode.R)) {
             seed = (int) (Random.value * 10000000);
         }
     }
 
+    /// <summary>
+    /// Print the generation grid to console.
+    /// </summary>
     void LogGrid()
     {   
         string grid = "";
         // Discard rightmost column and bottommost row
-        for (int y = 0; y < dungeonHeight - 1; y++)
+        for (int y = 0; y < dungeonHeight; y++)
         {
-            for (int x = 0; x < dungeonWidth - 1; x++)
+            for (int x = 0; x < dungeonWidth; x++)
             {
-                grid += " [" + dungeonGrid[y,x] + "] ";
+                grid += " [" + this.grid[y, x] + "] ";
             }
             grid += "\n";
         }
         Debug.Log(grid);
+    }
+    
+    [SerializeField] // prefab room walls
+    GameObject[] tiles;
+    int[,] tileMap;
+    GameObject dungeon;
+    /// <summary>
+    /// Using the current dungeon grid, instantiate tiles forming the dungeon.
+    /// </summary>
+    void FormWalls()
+    {
+        dungeon = new GameObject("dungeon");
+        dungeon.transform.SetParent(transform);
+        tileMap = new int[dungeonHeight, dungeonWidth];
+        // for each cell, wall top and left if edge is dungeon edge or different num
+        // sufficient for rectangular rooms: tilemap with 9 options
+        // 9-slice 012345678 where 0 is empty, 1,3,6,8 are nw,ne,sw,se corners, 2,4,5,7 are n,w,e,s edges
+        for (int y = 0; y < dungeonHeight; y++)
+        {
+            for (int x = 0; x < dungeonWidth; x++)
+            {
+                int gNum = grid[y,x];
+                
+                // NW case: N and W are dungeon edge or different roomNum
+                if ((x == 0 || grid[y,x-1] != gNum && gNum != 0) && (y == 0 || grid[y-1,x] != gNum && gNum != 0))
+                {
+                    tileMap[y,x] = 8;
+                    continue;
+                }
+                // SW case: S and W are edge or different
+                if ((x == 0 || grid[y,x-1] != gNum && gNum != 0) && (y == dungeonHeight-1 || grid[y+1,x] != gNum && gNum != 0))
+                {
+                    tileMap[y,x] = 7;
+                    continue;
+                }
+                // NE case: N and E are edge or different
+                if ((x == dungeonWidth-1 || grid[y,x+1] != gNum && gNum != 0) && (y == 0 || grid[y-1,x] != gNum && gNum != 0))
+                {
+                    tileMap[y,x] = 5;
+                    continue;
+                }
+                // SE case: S and E are edge or different
+                if ((x == dungeonWidth-1 || grid[y,x+1] != gNum && gNum != 0) && (y == dungeonHeight-1 || grid[y+1,x] != gNum && gNum != 0))
+                {
+                    tileMap[y,x] = 6;
+                    continue;
+                }
+                // N,S,W,E case: direction is edge or different
+                // if hallway, only wall if edge of dungeon
+                if (y == 0 || grid[y-1,x] != gNum && gNum != 0)
+                {
+                    tileMap[y,x] = 1; // N
+                    continue;
+                }
+                if (y == dungeonHeight-1 || grid[y+1,x] != gNum && gNum != 0)
+                {
+                    tileMap[y,x] = 2; // S
+                    continue;
+                }
+                if (x == 0 || grid[y,x-1] != gNum && gNum != 0)
+                {
+                    tileMap[y,x] = 4; // W
+                    continue;
+                }
+                if (x == dungeonWidth-1 || grid[y,x+1] != gNum && gNum != 0)
+                {
+                    tileMap[y,x] = 3; // E
+                    continue;
+                }
+                // otherwise, 0
+            }
+        }
+
+    }
+
+    void DeleteDungeon()
+    {
+        GameObject.Destroy(transform.GetChild(0).gameObject);
+    }
+    void LogTiles()
+    {   
+        string grid = "";
+        for (int y = 0; y < dungeonHeight; y++)
+        {
+            for (int x = 0; x < dungeonWidth; x++)
+            {
+                grid += " [" + this.tileMap[y, x] + "] ";
+            }
+            grid += "\n";
+        }
+        // Note rightmost and bottom not discarded. yet.
+        Debug.Log(grid);
+    }
+
+    void FormDoors()
+    {
+        // for each room, break down a random non-edge NSEW wall
+        for (int roomNum = 0; roomNum < roomNumber; roomNum++)
+        {
+            int perimeter = 0;
+            List<Vector2> perimCoords = new List<Vector2>();
+            // skip edges of dungeon
+            // unfortunately, loop twice to find perimeter then randomly place a door along it
+            for (int y = 1; y < dungeonHeight-1; y++)
+            {
+                for (int x = 1; x < dungeonWidth-1; x++)
+                {
+                    // skip nonmatching rooms, empty, corners
+                    if (tileMap[y,x] == 0 || grid[y,x] != roomNum+1 || tileMap[y,x] >= 5)
+                    {
+                        continue;
+                    } else
+                    {
+                        perimCoords.Add(new Vector2(x,y));
+                        perimeter++;
+                    }
+                }
+            }
+
+            Vector2 doorCoords = perimCoords[(int) (Random.value * perimCoords.Count)];
+            tileMap[(int) doorCoords.y, (int) doorCoords.x] += 8;
+        }
+    }
+
+    void SpawnDungeon()
+    {
+        for (int y = 0; y < dungeonHeight; y++)
+        {
+            for (int x = 0; x < dungeonWidth; x++)
+            {
+                GameObject newTile = GameObject.Instantiate(tiles[tileMap[y,x]]);
+                newTile.transform.SetParent(dungeon.transform);
+                newTile.transform.position = new Vector3(x * 5f, 0f, -y * 5f);
+            }
+        }
+    }
+
+    // extra effort points? run before geo starts
+    void ExciseRooms()
+    {
+        // for each room, cut out a random corner with a 0-rectangle
+
     }
 }

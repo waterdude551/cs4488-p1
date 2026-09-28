@@ -153,7 +153,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
-    m_Type: 2
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -358,6 +358,20 @@ MonoBehaviour:
   maxPlacementAttempts: 10000
   roomSizeGain: 0.125
   startingPlacementGain: 0.975
+  tiles:
+  - {fileID: 6776182422183189839, guid: 1bfccc5be7f3b9540b3ec6543416b8db, type: 3}
+  - {fileID: 6284512916341288114, guid: 9a3b0f11c76fe3d4793b91da16115890, type: 3}
+  - {fileID: 5781332796594184819, guid: 3f5e8f937007ade41880057a008811fa, type: 3}
+  - {fileID: 2762837076476233047, guid: 2a19c4d1afec9f7458b6d98dec5fdac6, type: 3}
+  - {fileID: 5104315105446360677, guid: 86de4a66b9698d44a97d6b6bb61ad027, type: 3}
+  - {fileID: 2758760571268634327, guid: 3436dc5919d88a44ab36cf316bd44ad6, type: 3}
+  - {fileID: 1377910809772116147, guid: 0f1895480d5d30846b8f0121f43eecc4, type: 3}
+  - {fileID: 4676746769981276259, guid: a840baf81f3031145884b2bcc6e96aa9, type: 3}
+  - {fileID: 5514211195372769027, guid: 0222b96c07245cd4883acf4701c2fe48, type: 3}
+  - {fileID: 2762837076476233047, guid: a9f356c47a773844ba33797855231923, type: 3}
+  - {fileID: 2762837076476233047, guid: 5bedf2945ce356f479bc723f057f4df2, type: 3}
+  - {fileID: 2762837076476233047, guid: 3ba95875da7403a4a88d6ad3992ad563, type: 3}
+  - {fileID: 2762837076476233047, guid: 0e42b262792b74549bcaf27aa451b52f, type: 3}
 --- !u!4 &1415342640
 Transform:
   m_ObjectHideFlags: 0
@@ -389,7 +403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1813096116
 MonoBehaviour:
   m_ObjectHideFlags: 0
