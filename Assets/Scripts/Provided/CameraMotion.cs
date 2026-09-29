@@ -8,9 +8,13 @@ public class CameraMotion : MonoBehaviour {
 
 	int max_plane = -1;       // the number of planes that we have made
 	float plane_size = 3.0f;  // the size of the planes
+	float translate_factor = 0.5f;
+	[SerializeField]
+	float moveSpeed;
+	Rigidbody rb;
 
 	void Start () {
-		
+		rb = GetComponent<Rigidbody>();
 		// start with one plane
 		// create_new_plane();
 	}
@@ -23,22 +27,67 @@ public class CameraMotion : MonoBehaviour {
 		float dz = Input.GetAxis ("Vertical");
 
 		// sensitivity factors for translate and rotate
-		float translate_factor = 0.3f;
 		float rotate_factor = 5.0f;
 
+		Transform mainCam = Camera.main.transform;
 		// move the camera based on keyboard input
 		if (Camera.main != null) {
 			// translate forward or backwards
-			Camera.main.transform.Translate (0, 0, dz * translate_factor);
+			Vector3 dir = transform.forward * (dz * moveSpeed * translate_factor * Time.deltaTime * 60f);
+			rb.linearVelocity = dir;
 
 			// rotate left or right
-			Camera.main.transform.Rotate (0, dx * rotate_factor, 0);
-			
-
+			transform.Rotate (0, dx * rotate_factor, 0);
 		}
 
+		if (Input.GetKeyDown(KeyCode.Alpha1)) 
+		{
+			transform.position = new Vector3(transform.position.x, 2f ,transform.position.z);
+			mainCam.rotation = Quaternion.Euler(0f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 0.3f;
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha2))
+		{
+			transform.position = new Vector3(transform.position.x, 15f ,transform.position.z);
+			mainCam.rotation = Quaternion.Euler(15f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 0.6f;
+			
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha3)) 
+		{
+			transform.position = new Vector3(transform.position.x, 25f ,transform.position.z);
+			mainCam.rotation = Quaternion.Euler(30f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 1f;
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha4)) 
+		{
+			transform.position = new Vector3(transform.position.x, 35f ,transform.position.z);
+			mainCam.rotation = Quaternion.Euler(30f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 1.5f;
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha5)) 
+		{
+			transform.position = new Vector3(transform.position.x, 60f ,transform.position.z);
+			
+			mainCam.rotation = Quaternion.Euler(45f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 2f;
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha6)) 
+		{
+			transform.position = new Vector3(transform.position.x, 100f ,transform.position.z);
+			
+			mainCam.rotation = Quaternion.Euler(75f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 3f;
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha7)) 
+		{
+			transform.position = new Vector3(transform.position.x, 200f ,transform.position.z);
+			
+			mainCam.rotation = Quaternion.Euler(90f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			translate_factor = 5f;
+		}
 		// get the main camera position
-		Vector3 cam_pos = Camera.main.transform.position;
+		// Vector3 cam_pos = Camera.main.transform.position;
 		//Debug.LogFormat ("x z: {0} {1}", cam_pos.x, cam_pos.z);
 
 		// if the camera has moved far enough, create another plane
