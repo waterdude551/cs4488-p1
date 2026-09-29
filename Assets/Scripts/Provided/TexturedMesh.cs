@@ -22,7 +22,7 @@ public class TexturedMesh : MonoBehaviour {
 	// create a quad that is textured
 	void Start () {
 		
-		
+		MakeFloor();
 	}
 
 	// create a texture with Perlin noise
@@ -52,7 +52,7 @@ public class TexturedMesh : MonoBehaviour {
 	}
 
 	// create a mesh that consists of two triangles that makes up a quad
-	Mesh CreateMyMesh() {
+	Mesh CreateMyMesh(int w, int h) {
 		
 		// create a mesh object
 		Mesh mesh = new Mesh();
@@ -62,10 +62,10 @@ public class TexturedMesh : MonoBehaviour {
 
 		// vertices for a quad
 
-		verts[0] = new Vector3 ( 1, 0, -1);
-		verts[1] = new Vector3 ( 1, 0,  1);
-		verts[2] = new Vector3 (-1, 0,  1);
-		verts[3] = new Vector3 (-1, 0, -1);
+		verts[0] = new Vector3 ( 2.5f*w, 0, -2.5f*h);
+		verts[1] = new Vector3 ( 2.5f*w, 0,  2.5f*h);
+		verts[2] = new Vector3 (-2.5f*w, 0,  2.5f*h);
+		verts[3] = new Vector3 (-2.5f*w, 0, -2.5f*h);
 
 		// create the uv coordinates
 
@@ -100,7 +100,7 @@ public class TexturedMesh : MonoBehaviour {
 	void MakeFloor()
 	{
 		// call the routine that makes a quad from scratch
-		Mesh my_mesh = CreateMyMesh();
+		Mesh my_mesh = CreateMyMesh(dungeonGen.dungeonWidth, dungeonGen.dungeonHeight);
 
 		// create a new GameObject and give it a MeshFilter and a MeshRenderer
 		GameObject s = new GameObject("Floor Tile");
@@ -108,15 +108,16 @@ public class TexturedMesh : MonoBehaviour {
 		s.AddComponent<MeshFilter>();
 		s.AddComponent<MeshRenderer>();
 		s.transform.position = new Vector3(2.5f*dungeonGen.dungeonWidth-2.5f, 0.1f, -2.5f*dungeonGen.dungeonHeight+2.5f);
-		s.transform.localScale = new Vector3(2.5f*dungeonGen.dungeonWidth, 1, 2.5f*dungeonGen.dungeonHeight);
+		// s.transform.localScale = new Vector3(1, 1, 1);
 
 		// associate my_mesh with this object
 		s.GetComponent<MeshFilter>().mesh = my_mesh;
 
 		// change the color of the object
 		Renderer rend = s.GetComponent<Renderer>();
+		rend.material = new Material(Shader.Find("Standard"));
 		rend.material.color = new Color (r,g,b, 1.0f);
-		rend.material.SetFloat("_Glossiness", 0f);
+		rend.material.SetFloat("_Glossiness", 0.1f);
 
 		// create a texture
 		Texture2D texture = make_a_texture();
@@ -128,13 +129,10 @@ public class TexturedMesh : MonoBehaviour {
 
 	// update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.Alpha2))
+		if (Input.GetKeyDown(KeyCode.G))
 		{
+			if (transform.childCount > 0) GameObject.Destroy(transform.GetChild(0).gameObject);
 			MakeFloor();
-		}
-		if (Input.GetKeyDown(KeyCode.Alpha3))
-		{
-			GameObject.Destroy(transform.GetChild(0).gameObject);
 		}
 	}
 		

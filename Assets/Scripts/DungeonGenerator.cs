@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    [SerializeField]
+    GameObject lightPrefab;
     // Define the grid size.
     public int dungeonWidth;
     public int dungeonHeight;
@@ -22,6 +24,8 @@ public class DungeonGenerator : MonoBehaviour
     float roomSizeGain; // Closer to 1 = more extreme values.
     [SerializeField, Range(0f, 1f)]
     float startingPlacementGain; // Closer to 1 = more extreme values.
+    [SerializeField, Range(0f, 1f)]
+    float lightRate;
     float roomPlacementGain; // Closer to 1 = more extreme values.
     bool generationActive;
     
@@ -29,7 +33,14 @@ public class DungeonGenerator : MonoBehaviour
     private int nextRoomWidth;
     private int nextRoomHeight;
     private int roomNumber;
-
+    void Awake()
+    {
+        GenerateRooms();
+        FormWalls();
+        FormDoors();
+        LogTiles();
+        SpawnDungeon();
+    }
     void Start()
     {
         InitDungeon();
@@ -91,7 +102,12 @@ public class DungeonGenerator : MonoBehaviour
                     || grid[Mathf.Max(0,y-1),x] != 0 
                     || grid[y,Mathf.Max(0,x-1)] != 0
                     || grid[Mathf.Min(dungeonHeight-1,y+1),x] != 0 
-                    || grid[y,Mathf.Min(dungeonWidth-1,x+1)] != 0)
+                    || grid[y,Mathf.Min(dungeonWidth-1,x+1)] != 0
+                    // diagonals: ul, bl, ur, br
+                    || grid[Mathf.Max(0,y-1),Mathf.Max(0,x-1)] != 0 
+                    || grid[Mathf.Min(dungeonHeight-1,y+1),Mathf.Max(0,x-1)] != 0 
+                    || grid[Mathf.Max(0,y-1),Mathf.Min(dungeonWidth-1,x+1)] != 0 
+                    || grid[Mathf.Min(dungeonHeight-1,y+1),Mathf.Min(dungeonWidth-1,x+1)] != 0)
                     {
                         // failed to place room; eject from for-loops
                         y = currY + nextRoomHeight;
@@ -162,20 +178,26 @@ public class DungeonGenerator : MonoBehaviour
     /// </summary>
     void ReadDebugInputs()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) {
-            GenerateRooms();
-            LogGrid();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        // if (Input.GetKeyDown(KeyCode.Alpha1)) {
+        //     GenerateRooms();
+        //     LogGrid();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha2))
+        // {
+        //     FormWalls();
+        //     FormDoors();
+        //     LogTiles();
+        //     SpawnDungeon();
+        // }
+        if (Input.GetKeyDown(KeyCode.G))
         {
+            if (transform.childCount > 0)
+                DeleteDungeon();
+            GenerateRooms();
             FormWalls();
             FormDoors();
             LogTiles();
             SpawnDungeon();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            DeleteDungeon();
         }
         if (Input.GetKeyDown(KeyCode.R)) {
             seed = (int) (Random.value * 10000000);
@@ -267,6 +289,7 @@ public class DungeonGenerator : MonoBehaviour
                     tileMap[y,x] = 3; // E
                     continue;
                 }
+                
                 // otherwise, 0
             }
         }
@@ -343,6 +366,12 @@ public class DungeonGenerator : MonoBehaviour
                 GameObject newTile = GameObject.Instantiate(tiles[tileMap[y,x]]);
                 newTile.transform.SetParent(dungeon.transform);
                 newTile.transform.position = new Vector3(x * 5f, 0f, -y * 5f);
+                if (y % 3 == 0 && x % 3 == 0)
+                {
+                    GameObject light = GameObject.Instantiate(lightPrefab);
+                    light.transform.SetParent(dungeon.transform);
+                    light.transform.position = new Vector3(x * 5f, 0f, -y * 5f);
+                }
             }
         }
     }
