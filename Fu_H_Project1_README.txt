@@ -3,7 +3,10 @@ hfu86@gatech.edu
 903856956
 
 Press 'G' to regenerate a dungeon with the current DungeonGen settings.
-Press 'R' to randomize the seed.
+	- If generation fails, please ensure dungeon width and height are sufficiently high compared to the max room size.
+	- You can adjust the gain of room size and placement to make rooms more extremely sized or centrally placed. As a dungeon generates, the size automatically decreases and the placements automatically move towards the center.
+
+Press 'R' to pseudorandomize the seed.
 Press number keys 1-7 to adjust camera angle and speed.
 
 Dungeon rooms themed after the Backrooms, with Fridges as the chests.

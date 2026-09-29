@@ -35,6 +35,7 @@ public class DungeonGenerator : MonoBehaviour
     private int roomNumber;
     void Awake()
     {
+        InitDungeon();
         GenerateRooms();
         FormWalls();
         FormDoors();
@@ -191,6 +192,7 @@ public class DungeonGenerator : MonoBehaviour
         // }
         if (Input.GetKeyDown(KeyCode.G))
         {
+            InitDungeon();
             if (transform.childCount > 0)
                 DeleteDungeon();
             GenerateRooms();
@@ -199,7 +201,7 @@ public class DungeonGenerator : MonoBehaviour
             LogTiles();
             SpawnDungeon();
         }
-        if (Input.GetKeyDown(KeyCode.R)) {
+        if (Input.GetKeyDown(KeyCode.R)) { // i just realized this isn't very random
             seed = (int) (Random.value * 10000000);
         }
     }
