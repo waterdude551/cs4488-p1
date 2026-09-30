@@ -8,10 +8,12 @@ public class CameraMotion : MonoBehaviour {
 
 	int max_plane = -1;       // the number of planes that we have made
 	float plane_size = 3.0f;  // the size of the planes
-	float translate_factor = 0.5f;
+	float translate_factor = 0.3f;
 	[SerializeField]
+	float baseMoveSpeed;
 	float moveSpeed;
 	Rigidbody rb;
+	bool sprinting = false;
 
 	void Start () {
 		rb = GetComponent<Rigidbody>();
@@ -28,6 +30,14 @@ public class CameraMotion : MonoBehaviour {
 
 		// sensitivity factors for translate and rotate
 		float rotate_factor = 5.0f;
+
+		if (sprinting)
+		{
+			moveSpeed = baseMoveSpeed * 1.5f;
+		} else
+		{
+			moveSpeed = baseMoveSpeed;
+		}
 
 		Transform mainCam = Camera.main.transform;
 		// move the camera based on keyboard input
@@ -62,14 +72,14 @@ public class CameraMotion : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.Alpha4)) 
 		{
 			transform.position = new Vector3(transform.position.x, 35f ,transform.position.z);
-			mainCam.rotation = Quaternion.Euler(30f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			mainCam.rotation = Quaternion.Euler(45f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
 			translate_factor = 1.5f;
 		}
 		if (Input.GetKeyDown(KeyCode.Alpha5)) 
 		{
 			transform.position = new Vector3(transform.position.x, 60f ,transform.position.z);
 			
-			mainCam.rotation = Quaternion.Euler(45f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
+			mainCam.rotation = Quaternion.Euler(60f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
 			translate_factor = 2f;
 		}
 		if (Input.GetKeyDown(KeyCode.Alpha6)) 
@@ -85,6 +95,16 @@ public class CameraMotion : MonoBehaviour {
 			
 			mainCam.rotation = Quaternion.Euler(90f, mainCam.rotation.eulerAngles.y, mainCam.rotation.eulerAngles.z);
 			translate_factor = 5f;
+		}
+
+		if (Input.GetKeyDown(KeyCode.LeftShift))
+		{
+			sprinting = true;
+		}
+
+		if (Input.GetKeyUp(KeyCode.LeftShift))
+		{
+			sprinting = false;
 		}
 		// get the main camera position
 		// Vector3 cam_pos = Camera.main.transform.position;

@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    [SerializeField]
+    FridgeGenerator fridgeGen;
     [SerializeField]
     GameObject lightPrefab;
     // Define the grid size.
@@ -24,8 +27,6 @@ public class DungeonGenerator : MonoBehaviour
     float roomSizeGain; // Closer to 1 = more extreme values.
     [SerializeField, Range(0f, 1f)]
     float startingPlacementGain; // Closer to 1 = more extreme values.
-    [SerializeField, Range(0f, 1f)]
-    float lightRate;
     float roomPlacementGain; // Closer to 1 = more extreme values.
     bool generationActive;
     
@@ -35,16 +36,24 @@ public class DungeonGenerator : MonoBehaviour
     private int roomNumber;
     void Awake()
     {
+        FullGenerateDungeon();
+    }
+
+    void FullGenerateDungeon()
+    {
         InitDungeon();
-        GenerateRooms();
-        FormWalls();
-        FormDoors();
-        LogTiles();
-        SpawnDungeon();
+            if (transform.childCount > 0)
+                DeleteDungeon();
+            GenerateRooms();
+            FormWalls();
+            FormDoors();
+            // LogTiles();
+            fridgeGen.JitterPlaceFridges();
+            SpawnDungeon();
     }
     void Start()
     {
-        InitDungeon();
+        
     }
 
     /// <summary>
@@ -58,6 +67,8 @@ public class DungeonGenerator : MonoBehaviour
         grid = new int[dungeonHeight,dungeonWidth];
         currMaxRoomSize = maxRoomSize;
         roomPlacementGain = startingPlacementGain;
+        transform.position = new Vector3(-dungeonWidth*2.5f, 0, dungeonHeight*2.5f);
+        fridgeGen.transform.position = transform.position;
     }
 
     /// <summary>
@@ -130,6 +141,12 @@ public class DungeonGenerator : MonoBehaviour
                         grid[y,x] = roomNumber;
                     }
                 }
+                // maybe cut a corner out
+                if (Random.value < excisionRate)
+                {
+                    ExciseRoom(currX,currY, nextRoomWidth, nextRoomHeight);
+                }
+
                 // end while
                 placementAttempts = maxPlacementAttempts;
             }
@@ -159,7 +176,6 @@ public class DungeonGenerator : MonoBehaviour
         InitDungeon();
         while (generationActive)
         {
-            // RandomizeSize();
             FindRoomPlacement();
         }
         Debug.Log("Generated " + roomNumber + " rooms");
@@ -192,14 +208,7 @@ public class DungeonGenerator : MonoBehaviour
         // }
         if (Input.GetKeyDown(KeyCode.G))
         {
-            InitDungeon();
-            if (transform.childCount > 0)
-                DeleteDungeon();
-            GenerateRooms();
-            FormWalls();
-            FormDoors();
-            LogTiles();
-            SpawnDungeon();
+            FullGenerateDungeon();
         }
         if (Input.GetKeyDown(KeyCode.R)) { // i just realized this isn't very random
             seed = (int) (Random.value * 10000000);
@@ -226,7 +235,7 @@ public class DungeonGenerator : MonoBehaviour
     
     [SerializeField] // prefab room walls
     GameObject[] tiles;
-    int[,] tileMap;
+    public int[,] tileMap;
     GameObject dungeon;
     /// <summary>
     /// Using the current dungeon grid, instantiate tiles forming the dungeon.
@@ -235,6 +244,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         dungeon = new GameObject("dungeon");
         dungeon.transform.SetParent(transform);
+        dungeon.transform.localPosition = Vector3.zero;
         tileMap = new int[dungeonHeight, dungeonWidth];
         // for each cell, wall top and left if edge is dungeon edge or different num
         // sufficient for rectangular rooms: tilemap with 9 options
@@ -367,21 +377,76 @@ public class DungeonGenerator : MonoBehaviour
             {
                 GameObject newTile = GameObject.Instantiate(tiles[tileMap[y,x]]);
                 newTile.transform.SetParent(dungeon.transform);
-                newTile.transform.position = new Vector3(x * 5f, 0f, -y * 5f);
+                newTile.transform.localPosition = new Vector3(x * 5f, 0f, -y * 5f);
                 if (y % 3 == 0 && x % 3 == 0)
                 {
                     GameObject light = GameObject.Instantiate(lightPrefab);
                     light.transform.SetParent(dungeon.transform);
-                    light.transform.position = new Vector3(x * 5f, 0f, -y * 5f);
+                    light.transform.localPosition = new Vector3(x * 5f, 0f, -y * 5f);
                 }
             }
         }
     }
 
-    // extra effort points? run before geo starts
-    void ExciseRooms()
-    {
-        // for each room, cut out a random corner with a 0-rectangle
+    // run before geo starts
+    [SerializeField, Range(0f,1f)]
+    float excisionRate; // chance of excising from a room
 
+    void ExciseRoom(int leftX, int topY, int roomWidth, int roomHeight)
+    {
+        // cut up to 2/3 of it
+        float excisionWidth = Rnd.gain(Random.value, 0.3f) * 2/3f; 
+        float excisionHeight = Rnd.gain(Random.value, 0.3f) * 2/3f; 
+        // Debug.Log("Before excision:");
+        // LogGrid();
+        // int squaresChanged = 0;
+
+        // initialize cut area at edges
+        int startY = topY;
+        int startX = leftX;
+        int endY = startY + roomHeight;
+        int endX = startX + roomWidth;
+        // cut out a random corner, 0123 = tl,tr,bl,br. 
+        int cornerToCut = (int) (Random.value * (4 - Mathf.Epsilon));
+
+        switch (cornerToCut)
+        {
+            // if room is in a corner, reject that corner from excision
+            case 0: // cut top left
+                if (startX <= 0 && startY <= 0) return;
+                endY = (int)(topY + roomHeight * excisionHeight);
+                endX = (int)(leftX + roomWidth * excisionWidth);
+                break;
+            case 1: // top right
+                if (endX >= dungeonWidth && startY <= 0) return;
+                endY = (int)(topY + roomHeight * excisionHeight);
+                startX = (int)(leftX + roomWidth*(1-excisionWidth));
+                break;
+            case 2: // bottom left
+                if (startX <= 0 && endY >= dungeonHeight) return;
+                startY = (int)(topY + roomHeight*(1-excisionHeight));
+                endX = (int)(leftX + roomWidth * excisionWidth);
+                break;
+            case 3: // bottom right
+                if (endX >= dungeonWidth && endY >= dungeonHeight) return;
+                startY = (int)(topY + roomHeight*(1-excisionHeight));
+                startX = (int)(leftX + roomWidth*(1-excisionWidth));
+                break;
+            default:
+                Debug.Log("Random returned impossible value.");
+                break;
+        }
+
+        for (int y = startY; y < endY; y++)
+        {
+            for (int x = startX; x < endX; x++)
+            {
+                grid[y,x] = 0;
+                // squaresChanged++;
+            }
+        }
+
+        // Debug.Log("After excision: changed from" + startX + "," +startY + " to " + endX + "," + endY + " for corner " + cornerToCut + ".");
+        // LogGrid();
     }
 }
