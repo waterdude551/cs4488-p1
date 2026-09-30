@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &324407472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 324407474}
+  - component: {fileID: 324407473}
+  m_Layer: 0
+  m_Name: FridgeGen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &324407473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 324407472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf35856ae83fea740958993eb7e2c0b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FridgeGenerator
+  fridgePrefab: {fileID: 5378699802480430793, guid: 35c2a6a610da5d340a9694e0a37e0cd5, type: 3}
+  dunGen: {fileID: 1415342639}
+  maxJitter: 5
+  spacing: 10
+--- !u!4 &324407474
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 324407472}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,7 +370,7 @@ GameObject:
   - component: {fileID: 1060187916}
   m_Layer: 0
   m_Name: CameraMover
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -339,7 +387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 534dbeb026584ea44bd16627b886bfe3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraMotion
-  moveSpeed: 10
+  baseMoveSpeed: 10
 --- !u!4 &1060187914
 Transform:
   m_ObjectHideFlags: 0
@@ -435,16 +483,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57522ff5dcc64354aa484512509c4d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
+  fridgeGen: {fileID: 324407473}
   lightPrefab: {fileID: 6776182422183189839, guid: fc7bac34935c8254e90ec6740ba3a563, type: 3}
-  dungeonWidth: 24
-  dungeonHeight: 24
+  dungeonWidth: 32
+  dungeonHeight: 32
   seed: 1
-  maxRoomSize: 10
-  minRoomSize: 5
+  maxRoomSize: 12
+  minRoomSize: 6
   maxPlacementAttempts: 10000
-  roomSizeGain: 0.3
-  startingPlacementGain: 0.75
-  lightRate: 0.05
+  roomSizeGain: 0.4
+  startingPlacementGain: 0.9
   tiles:
   - {fileID: 6776182422183189839, guid: 1bfccc5be7f3b9540b3ec6543416b8db, type: 3}
   - {fileID: 6284512916341288114, guid: 9a3b0f11c76fe3d4793b91da16115890, type: 3}
@@ -459,6 +507,7 @@ MonoBehaviour:
   - {fileID: 2762837076476233047, guid: 5bedf2945ce356f479bc723f057f4df2, type: 3}
   - {fileID: 2762837076476233047, guid: 3ba95875da7403a4a88d6ad3992ad563, type: 3}
   - {fileID: 2762837076476233047, guid: 0e42b262792b74549bcaf27aa451b52f, type: 3}
+  excisionRate: 0.7
 --- !u!4 &1415342640
 Transform:
   m_ObjectHideFlags: 0
@@ -533,3 +582,4 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 1813096117}
   - {fileID: 1415342640}
+  - {fileID: 324407474}
