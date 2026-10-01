@@ -10,7 +10,7 @@ public class CameraMotion : MonoBehaviour {
 	float plane_size = 3.0f;  // the size of the planes
 	float translate_factor = 0.3f;
 	[SerializeField]
-	float baseMoveSpeed;
+	float baseMoveSpeed = 20f;
 	float moveSpeed;
 	Rigidbody rb;
 	bool sprinting = false;
@@ -43,7 +43,7 @@ public class CameraMotion : MonoBehaviour {
 		// move the camera based on keyboard input
 		if (Camera.main != null) {
 			// translate forward or backwards
-			Vector3 dir = transform.forward * (dz * moveSpeed * translate_factor * Time.deltaTime * 60f);
+			Vector3 dir = transform.forward * (dz * moveSpeed * translate_factor);
 			rb.linearVelocity = dir;
 
 			// rotate left or right
